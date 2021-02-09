@@ -21,4 +21,4 @@ def countdown(n):
 	print("Counting Down in:")
 	for i in range(0,n):
 		time.sleep(1)
-		print(n-i)
+		print("\033[0;32;40mT-\t\033[0;33m"+n-i+"\033[0m")
