@@ -10,13 +10,16 @@ print("\033[0;32mINFO\t\033[0mkRPC version:",conn.krpc.get_status().version)
 
 vessel = conn.space_center.active_vessel
 print("\033[0;32mINFO\t\033[0mVessel Name:",vessel.name)
+
 ap = vessel.auto_pilot
+parts = vessel.parts
 ctrl = vessel.control
 print("\033[0;32mINFO\t\033[0mInitialize Completed.")
 time.sleep(1)
 os.system("cls")
 
 ctrl.rcs = True
+ctrl.breaks = True
 ap.sas = False
 # ap.sas_mode = ap.sas_mode.retrograde
 
@@ -29,16 +32,16 @@ vel = conn.add_stream(getattr,vessel.flight(vessel.orbit.body.reference_frame),'
 # 	print(vel())
 
 # PID Algorithm Configuration
-tgt_altitude = 2 	
+tgt_altitude = 5
 kp = 0.1
 ki = 0
-kd = 0.5
-
+kd = 0.35
+t = 0
 while srf_altitude() != tgt_altitude:
 	dh = tgt_altitude - srf_altitude()
 	throttle = kp*dh - kd*ver_speed() # PID Core Algorithm
 	velocity = vel()
-
+	
 	if throttle < 0:
 		throttle = 0
 
@@ -57,9 +60,12 @@ while srf_altitude() != tgt_altitude:
 		ap.engage()
 	
 	# SpaceX-Styled landing gear release
-	if srf_altitude() <= 20 + tgt_altitude and srf_altitude() <= 30:
-	#	ctrl.gear = True
-	#	print("\033[0;32mPROCESS\033[0m\tReleasing Landing Gear\n")
+	if srf_altitude() <= 30 + tgt_altitude or srf_altitude() <= 30:
+		ctrl.gear = True
+		ctrl.legs = True
+		if t < 1000:
+			print("\033[0;32mPROCESS\033[0m\tReleasing Landing Gear\n")
+			t += 1
 	
 	#	because there are no landing gears on the vessel
 		if ver_speed() >= -0.1:
